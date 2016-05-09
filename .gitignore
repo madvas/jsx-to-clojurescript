@@ -1,0 +1,16 @@
+/figwheel_server.log
+/.nrepl-port
+/jsx-to-cljs.iml
+pom.xml
+*jar
+/lib/
+/classes/
+/out/
+/release/
+/target/
+.lein-deps-sum
+.lein-repl-history
+.lein-plugins/
+.repl*
+/.idea
+/node_modules
