@@ -10,7 +10,7 @@
 (def program (js/require "commander"))
 (def argv (aget nodejs/process "argv"))
 
-(def acorn (js/require "acorn-jsx"))
+
 
 (.. program
     (version "0.0.1")
@@ -29,17 +29,8 @@
 (defn -main [& _]
   (let [jsx-str (-> (aget program "args") js->clj first)
         opts (u/kebabize-keys (js->clj (.opts program) :keywordize-keys true))]
-    (println "abcd")
-    (let [jsx-ast (-> (.parse acorn t9
-                              (clj->js {"plugins"
-                                        {"jsx" true}}))
-                      u/to-plain-object)])
-    #_(.log js/console (js/JSON.stringify (.parse acorn t5
-                                                  (clj->js {"plugins"
-                                                            {"jsx" true}})) nil 2))
-
-    #_(if jsx-str
-        (pprint (jsx-to-cljs/conv-target (:target opts) jsx-str opts))
-        (.outputHelp program))))
+    (if jsx-str
+      (pprint (jsx-to-cljs/transform-jsx (:target opts) jsx-str opts))
+      (.outputHelp program))))
 
 (set! *main-cli-fn* -main)

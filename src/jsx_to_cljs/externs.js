@@ -7,3 +7,7 @@ var commander = {
     opts :  function() {},
     outputHelp :  function() {}
 }
+
+var acorn = {
+    parse :  function() {}
+}

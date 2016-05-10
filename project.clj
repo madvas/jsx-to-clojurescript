@@ -1,14 +1,12 @@
-(defproject jsx-to-cljs "0.1.0"
+(defproject jsx-to-clojurescript "0.1.0"
   :description "Library to convert JSX snippets to Om/Reagent or other Clojurescript-style format."
-  :url "https://github.com/madvas/jsx-to-cljs"
+  :url "https://github.com/madvas/jsx-to-clojurescript"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.8.51"]
                  [figwheel-sidecar "0.5.0-6"]
                  [com.cemerick/piggieback "0.2.1"]
                  [org.clojure/tools.nrepl "0.2.10"]
                  [print-foo-cljs "2.0.0"]
-                 [funcool/tubax "0.2.0"]
-                 [com.lucasbradstreet/instaparse-cljs "1.4.1.2"]
                  [com.cognitect/transit-cljs "0.8.237"]]
   :jvm-opts ^:replace ["-Xmx1g" "-server"]
   :plugins [[lein-npm "0.6.2"]

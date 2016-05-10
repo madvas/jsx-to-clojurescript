@@ -5,8 +5,19 @@
             [cognitect.transit :as t]
             [clojure.walk :as w]))
 
-(defn camel->kebab [kw]
-  (keyword (s/join "-" (map s/lower-case (re-seq #"\w[a-z]*" (name kw))))))
+(defn camel->kebab [x]
+  (cond-> (s/join "-" (map s/lower-case (re-seq #"\w[a-z0-9]*" (name x))))
+          (keyword? x) keyword
+          (symbol? x) symbol))
+
+(defn kebab->camel
+  ([x] (kebab->camel x false))
+  ([x capitalize?]
+   (cond-> (name x)
+           capitalize? s/capitalize
+           true (s/replace #"-(\w)" (comp s/upper-case second))
+           (keyword? x) keyword
+           (symbol? x) symbol)))
 
 (defn keyword->symbol [kw]
   (symbol (namespace kw) (name kw)))
@@ -52,6 +63,22 @@
       js/JSON.stringify
       read-json
       w/keywordize-keys))
+
+(defn update-first-in-list [l f]
+  (-> (first l)
+      f
+      (cons (drop 1 l))))
+
+(defn force-list [x]
+  (if (list? x) x `(~x)))
+
+(defn operator->symbol [js-operator]
+  (symbol (condp = js-operator
+            "&&" "and"
+            "||" "or"
+            "==" "="
+            "===" "="
+            js-operator)))
 
 (def dom-tags
   #{"a"
@@ -182,3 +209,4 @@
     "stop"
     "tspan"
     "use"})
+
