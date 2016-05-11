@@ -332,8 +332,10 @@ Alright folks, that's enough of examples, I guess you get the picture :wink:. If
 
 ### Library API
 I won't write API here for 2 reasons:
+
 1. Not sure if this has many use cases as a library
-2. Core codebase is just ~200 very straightforward lines of code (gotta love Clojure :joy:)
+
+2. Core codebase is just ~200 very straightforward lines of code. You will get it very quickly, when you see it. (gotta love Clojure :purple_heart:)
 
 If interested, library is extendable, you can easily add other targets other than Om/Reagent (with a single function!)
 
