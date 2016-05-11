@@ -4,9 +4,9 @@
 **Search no more!**
 
 
-This is command utility and library to convert JSX snippets to Om/Reagent Clojurescript-style format.
+This is command utility and library to **convert JSX snippets to Om/Reagent Clojurescript-style format.**
 Note, this is by no means to be perfect JS->Cljs compiler, output will often still need touch of your loving
-hand, but, hey, most of dirty work will be done :P
+hand, but, hey, most of dirty work will be done :sunglasses:
 
 This library uses [acorn-jsx](https://github.com/RReverser/acorn-jsx) to parse JSX into nice AST. So big kudos there.
 Since it's Node.js library, you can use this library only in Clojurescript targeted to Node.js
