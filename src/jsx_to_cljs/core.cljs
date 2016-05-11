@@ -67,7 +67,7 @@
   (with-meta `(~'let ~(into [] (apply concat declarations)))
              {:type :let-form}))
 
-(defn ^:private merge-var-declarations [body]
+(defn ^:private merge-let-forms [body]
   "Merges let statements in body and brings it to the top as first statement"
   (let [[declarations other] (u/filter-remove u/let-form? body)]
     (if declarations
@@ -93,13 +93,8 @@
 (defn ^:private create-fn-form [_ {:keys [params body]} _ _]
   (concat `(~'fn ~params) (remove-do body)))
 
-(comment
-  (merge-var-declarations [(with-meta '(let [next-index (+ (:index route) 1) my-var "sth"]) {:type :let-form})
-                           (with-meta '(let [prev-index (- (:index route) 1)]) {:type :let-form})
-                           '(sth navigator)]))
-
 (defmethod ast-node "BlockStatement" [_ {:keys [body]} _ _]
-  (let [body (merge-var-declarations body)
+  (let [body (merge-let-forms body)
         first-exp (first body)]
     (if (u/let-form? first-exp)
       (concat first-exp (rest body))

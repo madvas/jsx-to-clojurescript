@@ -18,7 +18,7 @@ npm install -g jsx-to-clojurescript
 ```
 **As library:**
 ```
-[jsx-to-clojurescript "0.1.2"]
+[jsx-to-clojurescript "0.1.3"]
 ```
 **As [Alfred](https://www.alfredapp.com/) workflow:**
 I personally use it like this, but I haven't published workflow yet. But you can easily create it by yourself
