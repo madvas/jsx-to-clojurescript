@@ -32,7 +32,7 @@ lein cljsbuild once
 ### Usage
 
 ```bash
-./jsx-to-clojurescript -h
+jsx-to-clojurescript -h
 
   Usage: jsx-to-clojurescript [options] <string>
 
@@ -59,7 +59,7 @@ lein cljsbuild once
 </div>
 ```
 ```bash
-./jsx-to-clojurescript --kebab-tags "$(pbpaste)"
+jsx-to-clojurescript --kebab-tags "$(pbpaste)"
 ```
 ```clojure
 (dom/div
@@ -88,7 +88,7 @@ lein cljsbuild once
   />
 ```
 ```bash
- ./jsx-to-clojurescript --kebab-tags --kebab-attrs --ns "u" --target reagent --omit-empty-attrs "$(pbpaste)"
+ jsx-to-clojurescript --kebab-tags --kebab-attrs --ns "u" --target reagent --omit-empty-attrs "$(pbpaste)"
 ```
 ```clojure
 [u/app-bar
@@ -151,7 +151,7 @@ lein cljsbuild once
       </div>
 ```
 ```bash
-./jsx-to-clojurescript --kebab-tags --kebab-attrs --ns "u" --target reagent --omit-empty-attrs "$(pbpaste)"
+jsx-to-clojurescript --kebab-tags --kebab-attrs --ns "u" --target reagent --omit-empty-attrs "$(pbpaste)"
 ```
 ```clojure
 [:div
@@ -196,7 +196,7 @@ lein cljsbuild once
 </ul>
 ```
 ```bash
-./jsx-to-clojurescript --ns "" --target om "$(pbpaste)"
+jsx-to-clojurescript --ns "" --target om "$(pbpaste)"
 ```
 ```clojure
 (dom/ul
@@ -215,7 +215,7 @@ lein cljsbuild once
  </Animated.View>
 ```
 ```bash
-./jsx-to-clojurescript --ns "" --target om "$(pbpaste)"
+jsx-to-clojurescript --ns "" --target om "$(pbpaste)"
 ```
 ```clojure
 (AnimatedView
@@ -231,7 +231,7 @@ lein cljsbuild once
 </View>
 ```
 ```bash
-./jsx-to-clojurescript --target reagent "$(pbpaste)"
+jsx-to-clojurescript --target reagent "$(pbpaste)"
 ```
 ```clojure
 [ui/View
@@ -249,7 +249,7 @@ lein cljsbuild once
 </div>
 ```
 ```bash
-./jsx-to-clojurescript --kebab-attrs --target reagent "$(pbpaste)"
+jsx-to-clojurescript --kebab-attrs --target reagent "$(pbpaste)"
 ```
 ```clojure
 [:div#my-id.some-class.some-other
@@ -301,7 +301,7 @@ lein cljsbuild once
   />
 ```
 ```bash
-./jsx-to-clojurescript --kebab-attrs --kebab-tags "$(pbpaste)"
+jsx-to-clojurescript --kebab-attrs --kebab-tags "$(pbpaste)"
 ```
 ```clojure
 (ui/navigator
