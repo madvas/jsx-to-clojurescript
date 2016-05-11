@@ -20,9 +20,17 @@ npm install -g jsx-to-clojurescript
 ```
 [jsx-to-clojurescript "0.1.3"]
 ```
-**As [Alfred](https://www.alfredapp.com/) workflow:**
-I personally use it like this, but I haven't published workflow yet. But you can easily create it by yourself
-after you've installed command via npm.
+**As [Alfred](https://www.alfredapp.com/) workflow (Mac only):**
+
+I also made workflow, you can download it [here](https://github.com/madvas/jsx-to-clojurescript/raw/master/jsx-to-clojurescript.alfredworkflow)
+Following things are needed:
+* You installed via `npm install -g jsx-to-clojurescript`
+* Workflow assumes following paths `/usr/local/bin/node` `/usr/local/bin/jsx-to-clojurescript`. If you
+have different, you can change it in Alfred preferences when you open this workflow's run script.
+
+Use it with keyword `jsxcljs` and paste JSX. To change command line arguments for all following queries use
+`jsxcljs set` and type arguments. Don't put arguments into `jsxcljs`, only JSX string.
+
 
 **Build your own:**
 ```bash
