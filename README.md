@@ -14,7 +14,7 @@ Since it's Node.js library, you can use this library only in Clojurescript targe
 
 ### Installation
 **As command:**
-```
+```bash
 npm install -g jsx-to-clojurescript
 ```
 **As library:**
@@ -24,6 +24,11 @@ npm install -g jsx-to-clojurescript
 **As [Alfred](https://www.alfredapp.com/) workflow:**
 I personally use it like this, but I haven't published workflow yet. But you can easily create it by yourself
 after you've installed command via npm.
+
+**Build your own:**
+```bash
+lein cljsbuild once
+```
 
 ### Usage
 

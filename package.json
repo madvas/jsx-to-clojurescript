@@ -1,0 +1,36 @@
+{
+  "name": "jsx-to-clojurescript",
+  "version": "0.1.0",
+  "description": "Command and library to convert JSX snippets to Om/Reagent or other Clojurescript-style format.",
+  "bin": {
+    "jsx-to-clojurescript": "release/jsx-to-clojurescript"
+  },
+  "dependencies": {
+    "ws": "^1.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/madvas/jsx-to-clojurescript.git"
+  },
+  "keywords": [
+    "jsx",
+    "react",
+    "clojurescript",
+    "clojure",
+    "om",
+    "reagent",
+    "omnext",
+    "cljs",
+    "clj"
+  ],
+  "author": "Matus Lestan <matus.lestan@gmail.com> (https://github.com/madvas)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/madvas/jsx-to-clojurescript/issues"
+  },
+  "homepage": "https://github.com/madvas/jsx-to-clojurescript#readme"
+}

@@ -22,9 +22,6 @@
     (apply f x args)
     x))
 
-(defn apply-if-not [pred & args]
-  (apply apply-if (complement pred) args))
-
 (defn numeric-str? [str]
   (and (string? str)
        (re-matches #"^[0-9\.]+$" str)))
@@ -40,7 +37,6 @@
 (def kebabize-keys (partial map-keys cs/->kebab-case))
 (def remove-attributes-values (partial map-vals (constantly nil)))
 (def parse-numeric-attributes (partial map-vals #(apply-if numeric-str? js/parseFloat %)))
-(def nil-if-empty (partial apply-if-not seq (constantly nil)))
 
 (def read-json (partial t/read (t/reader :json)))
 
@@ -93,9 +89,6 @@
 
 (defn has-node-type? [type x]
   (= (:type (meta x)) type))
-
-(defn ensure-form-seq [form]
-  (if (> (count form) 1) form [form]))
 
 (defn ensure-vec [x]
   (if (vector? x) x [x]))

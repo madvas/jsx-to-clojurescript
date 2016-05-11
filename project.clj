@@ -1,5 +1,5 @@
 (defproject jsx-to-clojurescript "0.1.0"
-  :description "Library to convert JSX snippets to Om/Reagent or other Clojurescript-style format."
+  :description "Command and library to convert JSX snippets to Om/Reagent or other Clojurescript-style format."
   :url "https://github.com/madvas/jsx-to-clojurescript"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.8.51"]
@@ -21,12 +21,12 @@
   :cljsbuild {:builds
               {:main {;:notify-command ["node" "release/jsx-to-clojurescript.js"]
                       :compiler     {:main          jsx-to-cljs.cmd
-                                     :output-to     "release/jsx-to-clojurescript",
+                                     :output-to     "jsx-to-clojurescript.js",
                                      :output-dir    "release",
                                      :target        :nodejs,
                                      :optimizations :advanced,
                                      :verbose       false
-                                     :source-map    "release/jsx-to-clojurescript.map"
+                                     :source-map    "jsx-to-clojurescript.js.map"
                                      :externs       ["src/jsx_to_cljs/externs.js"]}
                       :source-paths ["src"]}}}
   :clean-targets ["out" "release"]
