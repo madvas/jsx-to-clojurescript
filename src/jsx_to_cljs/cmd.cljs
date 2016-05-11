@@ -1,7 +1,7 @@
 (ns jsx-to-cljs.cmd
   (:require [cljs.nodejs :as nodejs]
             [print.foo :as pf :include-macros true]
-            [jsx-to-cljs.core :as jsx-to-cljs :refer [t1 t2 t3 t4 t5 t9]]
+            [jsx-to-cljs.core :as jsx-to-cljs]
             [cljs.pprint :refer [pprint]]
             [jsx-to-cljs.utils :as u]))
 
@@ -10,15 +10,13 @@
 (def program (js/require "commander"))
 (def argv (aget nodejs/process "argv"))
 
-
-
 (.. program
-    (version "0.0.1")
+    (version "0.1.0")
     (description "Converts JSX string into selected Clojurescript React library format")
     (usage "[options] <string>")
-    (option "-t --target [target]" "Target library (om/reagent)" #"(om|reagent)$" "om")
-    (option "--ns [string]" "Namespace to prepend compoments. Default ui" "ui")
-    (option "--dom-ns [string]" "Namespace to prepend DOM compoments. Default dom" "dom")
+    (option "-t --target [target]" "Target library (om/reagent). Default om" #"(om|reagent)$" "om")
+    (option "--ns [string]" "Namespace for compoments. Default ui" "ui")
+    (option "--dom-ns [string]" "Namespace for DOM compoments. Default dom" "dom")
     (option "--kebab-tags" "Convert tags to kebab-case?")
     (option "--kebab-attrs" "Convert attributes to kebab-case?")
     (option "--remove-attr-vals" "Remove attribute values?")

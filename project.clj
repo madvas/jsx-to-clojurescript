@@ -7,7 +7,8 @@
                  [com.cemerick/piggieback "0.2.1"]
                  [org.clojure/tools.nrepl "0.2.10"]
                  [print-foo-cljs "2.0.0"]
-                 [com.cognitect/transit-cljs "0.8.237"]]
+                 [com.cognitect/transit-cljs "0.8.237"]
+                 [camel-snake-kebab "0.4.0"]]
   :jvm-opts ^:replace ["-Xmx1g" "-server"]
   :plugins [[lein-npm "0.6.2"]
             [lein-cljsbuild "1.1.3"]
@@ -18,16 +19,15 @@
                        [acorn-jsx "3.0.1"]]}
   :source-paths ["src" "target/classes"]
   :cljsbuild {:builds
-              {:main {:notify-command ["node" "release/jsx_to_cljs.js"]
-                      :compiler       {:main          jsx-to-cljs.cmd
-                                       :output-to     "release/jsx_to_cljs.js",
-                                       :output-dir    "release",
-                                       :target        :nodejs,
-                                       :optimizations :simple,
-                                       :pretty-print  true,
-                                       :verbose       false
-                                       :source-map    "release/jsx_to_cljs.js.map"
-                                       :externs       ["src/jsx_to_cljs/externs.js"]}
-                      :source-paths   ["src"]}}}
+              {:main {;:notify-command ["node" "release/jsx-to-clojurescript.js"]
+                      :compiler     {:main          jsx-to-cljs.cmd
+                                     :output-to     "release/jsx-to-clojurescript",
+                                     :output-dir    "release",
+                                     :target        :nodejs,
+                                     :optimizations :advanced,
+                                     :verbose       false
+                                     :source-map    "release/jsx-to-clojurescript.map"
+                                     :externs       ["src/jsx_to_cljs/externs.js"]}
+                      :source-paths ["src"]}}}
   :clean-targets ["out" "release"]
   :target-path "target")

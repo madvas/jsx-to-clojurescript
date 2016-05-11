@@ -14,3 +14,4 @@ pom.xml
 .repl*
 /.idea
 /node_modules
+/jsx-to-clojurescript.iml

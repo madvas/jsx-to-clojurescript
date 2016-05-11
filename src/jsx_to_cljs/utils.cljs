@@ -1,29 +1,12 @@
 (ns jsx-to-cljs.utils
-  (:require [tubax.helpers :as th]
-            [clojure.string :as s]
+  (:require [clojure.string :as s]
             [print.foo :as pf :include-macros true]
             [cognitect.transit :as t]
-            [clojure.walk :as w]))
-
-(defn camel->kebab [x]
-  (cond-> (s/join "-" (map s/lower-case (re-seq #"\w[a-z0-9]*" (name x))))
-          (keyword? x) keyword
-          (symbol? x) symbol))
-
-(defn kebab->camel
-  ([x] (kebab->camel x false))
-  ([x capitalize?]
-   (cond-> (name x)
-           capitalize? s/capitalize
-           true (s/replace #"-(\w)" (comp s/upper-case second))
-           (keyword? x) keyword
-           (symbol? x) symbol)))
+            [clojure.walk :as w]
+            [camel-snake-kebab.core :as cs]))
 
 (defn keyword->symbol [kw]
   (symbol (namespace kw) (name kw)))
-
-(defn has-children? [{:keys [content]}]
-  (some th/is-node content))
 
 (defn add-ns [tag ns]
   (keyword ns (name tag)))
@@ -51,7 +34,10 @@
 (defn dom-tag? [tag]
   (contains? dom-tags (name tag)))
 
-(def kebabize-keys (partial map-keys camel->kebab))
+(defn join-classes [class-str]
+  (s/replace (str " " class-str) #" " "."))
+
+(def kebabize-keys (partial map-keys cs/->kebab-case))
 (def remove-attributes-values (partial map-vals (constantly nil)))
 (def parse-numeric-attributes (partial map-vals #(apply-if numeric-str? js/parseFloat %)))
 (def nil-if-empty (partial apply-if-not seq (constantly nil)))
@@ -78,7 +64,44 @@
             "||" "or"
             "==" "="
             "===" "="
+            "!" "not"
+            "=" "set!"
             js-operator)))
+
+(defn non-empty-str? [str]
+  (and (string? str) (not (s/blank? str))))
+
+(defn symbol-or-list? [x]
+  (or (symbol? x) (list? x)))
+
+(defn map-call? [callee args]
+  (and (list? callee)
+       (= (first callee) :map)
+       (symbol-or-list? (second callee))
+       (or (symbol? (first args))
+           (= (ffirst args) 'fn))))
+
+(defn strip-init-underscore [x]
+  (s/replace (name x) #"^_" ""))
+
+(defn clojurize-map-call [[_ data f]]
+  `(~'map ~f ~data))
+
+(defn filter-remove [pred coll]
+  (let [res (group-by pred coll)]
+    [(get res true) (get res false)]))
+
+(defn has-node-type? [type x]
+  (= (:type (meta x)) type))
+
+(defn ensure-form-seq [form]
+  (if (> (count form) 1) form [form]))
+
+(defn ensure-vec [x]
+  (if (vector? x) x [x]))
+
+(def let-form? (partial has-node-type? :let-form))
+(def do-form? (partial has-node-type? :do-form))
 
 (def dom-tags
   #{"a"
