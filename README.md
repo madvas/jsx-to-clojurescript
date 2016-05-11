@@ -1,5 +1,4 @@
-# JSX to Clojurescript
-
+# JSX to Clojurescript &nbsp; &nbsp;  ![jsx](https://cloud.githubusercontent.com/assets/3857155/15179972/31c60106-177f-11e6-8c6f-8598d611154d.png) &nbsp; ![arrow](https://cloud.githubusercontent.com/assets/3857155/15180286/eace4644-1780-11e6-8d84-e1b8454a2e2e.png) &nbsp; ![clojurescript](https://cloud.githubusercontent.com/assets/3857155/15180154/246d0378-1780-11e6-800f-6bf069dac6a2.png)
 **Moving old ReactJS codebase to Clojurescript? Tired of manually typing ReactJS examples as Clojurescript?**
 
 **Search no more!**
@@ -9,7 +8,7 @@ This is command utility and library to convert JSX snippets to Om/Reagent Clojur
 Note, this is by no means to be perfect JS->Cljs compiler, output will often still need touch of your loving
 hand, but, hey, most of dirty work will be done :P
 
-This library uses [acorn-js](https://github.com/RReverser/acorn-jsx) to parse JSX into nice AST. So big kudos there.
+This library uses [acorn-jsx](https://github.com/RReverser/acorn-jsx) to parse JSX into nice AST. So big kudos there.
 Since it's Node.js library, you can use this library only in Clojurescript targeted to Node.js
 
 ### Installation
@@ -19,7 +18,7 @@ npm install -g jsx-to-clojurescript
 ```
 **As library:**
 ```
-[jsx-to-clojurescript "0.1.0"]
+[jsx-to-clojurescript "0.1.2"]
 ```
 **As [Alfred](https://www.alfredapp.com/) workflow:**
 I personally use it like this, but I haven't published workflow yet. But you can easily create it by yourself

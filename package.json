@@ -1,12 +1,14 @@
 {
   "name": "jsx-to-clojurescript",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Command and library to convert JSX snippets to Om/Reagent or other Clojurescript-style format.",
   "bin": {
-    "jsx-to-clojurescript": "release/jsx-to-clojurescript"
+    "jsx-to-clojurescript": "jsx-to-clojurescript.js"
   },
   "dependencies": {
-    "ws": "^1.1.0"
+    "ws": "^1.1.0",
+    "acorn-jsx": "=3.0.1",
+    "commander": "=2.9.0"
   },
   "devDependencies": {},
   "scripts": {
