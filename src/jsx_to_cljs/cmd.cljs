@@ -3,7 +3,8 @@
             [print.foo :as pf :include-macros true]
             [jsx-to-cljs.core :as jsx-to-cljs]
             [cljs.pprint :refer [pprint]]
-            [jsx-to-cljs.utils :as u]))
+            [jsx-to-cljs.utils :as u]
+            [clojure.string :as s]))
 
 (nodejs/enable-util-print!)
 
@@ -16,17 +17,30 @@
     (usage "[options] <string>")
     (option "-t --target [target]" "Target library (om/reagent). Default om" #"(om|reagent)$" "om")
     (option "--ns [string]" "Namespace for compoments. Default ui" "ui")
-    (option "--dom-ns [string]" "Namespace for DOM compoments. Default dom" "dom")
+    (option "--dom-ns [ns]" "Namespace for DOM compoments. Default dom" "dom")
+    (option "--lib-ns [ns]" "Target library ns. Default for Om: 'om'. Default for reagent: 'r'")
     (option "--kebab-tags" "Convert tags to kebab-case?")
     (option "--kebab-attrs" "Convert attributes to kebab-case?")
+    (option "--camel-styles" "Keep style keys as camelCase")
     (option "--remove-attr-vals" "Remove attribute values?")
     (option "--omit-empty-attrs" "Omit empty attributes?")
     (parse argv))
 
+(defn default-lib-ns [opts]
+  (update opts :lib-ns (fn [lib-ns]
+                         (if-not lib-ns
+                           (condp = (:target opts)
+                             "om" "om"
+                             "reagent" "r"
+                             nil)
+                           (if (s/blank? lib-ns) nil lib-ns)))))
 
 (defn -main [& _]
   (let [jsx-str (-> (aget program "args") js->clj first)
-        opts (u/kebabize-keys (js->clj (.opts program) :keywordize-keys true))]
+        opts (-> (.opts program)
+                 (js->clj :keywordize-keys true)
+                 u/kebabize-keys
+                 default-lib-ns)]
     (if jsx-str
       (pprint (jsx-to-cljs/transform-jsx (:target opts) jsx-str opts))
       (.outputHelp program))))

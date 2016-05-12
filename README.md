@@ -18,7 +18,7 @@ npm install -g jsx-to-clojurescript
 ```
 **As library:**
 ```
-[jsx-to-clojurescript "0.1.3"]
+[jsx-to-clojurescript "0.1.4"]
 ```
 **As [Alfred](https://www.alfredapp.com/) workflow (Mac only):**
 
@@ -52,11 +52,14 @@ jsx-to-clojurescript -h
     -V, --version         output the version number
     -t --target [target]  Target library (om/reagent). Default om
     --ns [string]         Namespace for compoments. Default ui
-    --dom-ns [string]     Namespace for DOM compoments. Default dom
+    --dom-ns [ns]         Namespace for DOM compoments. Default dom
+    --lib-ns [ns]         Target library ns. Default for Om: 'om'. Default for reagent: 'r'
     --kebab-tags          Convert tags to kebab-case?
     --kebab-attrs         Convert attributes to kebab-case?
+    --camel-styles        Keep style keys as camelCase
     --remove-attr-vals    Remove attribute values?
     --omit-empty-attrs    Omit empty attributes?
+
 ```
 
 **Okay let's start with something simple** :bowtie:
@@ -178,7 +181,7 @@ jsx-to-clojurescript --kebab-tags --kebab-attrs --ns "u" --target reagent --omit
        :on-click
              (fn [event]
                (prevent-default event)
-               (set-state {:step-index 0, :finished false}))}
+               (r/set-state this {:step-index 0, :finished false}))}
       "Click here"]
      " to reset the example."]
     [:div

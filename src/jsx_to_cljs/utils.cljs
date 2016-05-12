@@ -35,6 +35,7 @@
   (s/replace (str " " class-str) #" " "."))
 
 (def kebabize-keys (partial map-keys cs/->kebab-case))
+(def camelize-keys (partial map-keys cs/->camelCase))
 (def remove-attributes-values (partial map-vals (constantly nil)))
 (def parse-numeric-attributes (partial map-vals #(apply-if numeric-str? js/parseFloat %)))
 

@@ -7,25 +7,35 @@
 
 (def acorn (js/require "acorn-jsx"))
 
-(defprotocol TargetLibrary
-  (element [this tag attrs children dom-tag? node opts]))
-
-(defrecord Om []
-  TargetLibrary
-  (element [_ tag attrs children _ _ {:keys [omit-empty-attrs]}]
-    (cond-> `(~tag)
-            (or (not omit-empty-attrs)
-                (seq attrs)) (concat [attrs])
-            true (concat children))))
-
 (defn ^:private move-attr->tag-suffix [[attrs tag-suffix] attr-name s]
   (if (u/non-empty-str? (get attrs attr-name))
     [(dissoc attrs attr-name) (str tag-suffix s)]
     [attrs tag-suffix]))
 
+(defn ^:private replace-set-state-calls [attrs new-call]
+  (w/postwalk (fn [x]
+                (if (and (seq? x)
+                         (symbol? (first x))
+                         (= (-> (first x) name cs/->kebab-case) "set-state"))
+                  (concat `(~new-call ~'this) (rest x))
+                  x)) attrs))
+
+(defprotocol TargetLibrary
+  (element [this tag attrs children dom-tag? node opts]))
+
+(defrecord Om []
+  TargetLibrary
+  (element [_ tag attrs children _ _ {:keys [omit-empty-attrs lib-ns]}]
+    (cond-> `(~tag)
+            (or (not omit-empty-attrs)
+                (seq attrs)) (concat [(replace-set-state-calls attrs (symbol lib-ns 'set-state!))])
+            true (concat children))))
+
+
+
 (defrecord Reagent []
   TargetLibrary
-  (element [_ tag attrs children dom-tag? _ {:keys [omit-empty-attrs kebab-attrs]}]
+  (element [_ tag attrs children dom-tag? _ {:keys [omit-empty-attrs kebab-attrs lib-ns]}]
     (let [id (get attrs :id)
           class-attr-name (if kebab-attrs :class-name :className)
           class-name (get attrs class-attr-name)
@@ -36,7 +46,7 @@
                            tag)]
       (into [] (cond-> [tag]
                        (or (not omit-empty-attrs)
-                           (seq attrs)) (conj attrs)
+                           (seq attrs)) (conj (replace-set-state-calls attrs (symbol lib-ns 'set-state)))
                        true (concat children))))))
 
 (defmulti ast-node (fn [type node target opts] type))
@@ -166,8 +176,14 @@
 (defmethod ast-node "VariableDeclarator" [_ {:keys [id init]} _ _]
   `[~id ~init])
 
+(defn ^:private camelize-styles [attrs]
+  (let [styles (:style attrs)]
+    (if (map? styles)
+      (assoc attrs :style (u/camelize-keys styles))
+      attrs)))
+
 (defmethod ast-node "JSXElement"
-  [_ node target {:keys [ns dom-ns kebab-tags kebab-attrs remove-attr-vals] :as opts}]
+  [_ node target {:keys [ns dom-ns kebab-tags kebab-attrs remove-attr-vals camel-styles] :as opts}]
   (let [el (:openingElement node)
         tag-name (:name el)
         dom-tag? (u/dom-tag? tag-name)
@@ -181,6 +197,7 @@
         attrs (cond-> (into {} (filter map? all-attrs))
                       kebab-attrs u/kebabize-keys
                       remove-attr-vals u/remove-attributes-values
+                      camel-styles camelize-styles
                       true u/parse-numeric-attributes
                       spread-attrs (create-attrs-merge spread-attrs))
         children (remove s/blank? (:children node))]
@@ -253,14 +270,16 @@
     (def t27 "< Navigator initialRoute = {\n    {\n      name: 'My First Scene',\n      index: 0\n    }\n  }\n  renderScene = {\n    (route, navigator) =>\n    < MySceneComponent\n    name = {\n      route.name\n    }\n    onForward = {\n      () => {\n        var nextIndex = route.index + 1,\n          myOtherIndex = nextIndex + 10;\n\n        navigator.push({\n          name: 'Scene ' + nextIndex,\n          index: nextIndex,\n        });\n\n        var yetAnotherIndex = myOtherIndex - 1;\n      }\n    }\n    onBack = {\n      () => {\n        if (route.index > 0) {\n          navigator.pop();\n        } else if (route.index == 0) {\n          someFuction();\n          namingIsHardFun();\n        } else {\n        \tvar myGreatParam = 5;\n          someOtherFunction(myGreatParam);\n        }\n      }\n    }\n    />\n  }\n  />")
     (def t28 "<View>\n        <ScrollView\n          ref={(scrollView) => { _scrollView = scrollView; }}\n          automaticallyAdjustContentInsets={false}\n          onScroll={() => { console.log('onScroll!'); }}\n          scrollEventThrottle={200}\n          style={styles.scrollView}>\n          {THUMBS.map(createThumbRow)}\n        </ScrollView>\n        <TouchableOpacity\n          style={styles.button}\n          onPress={() => { _scrollView.scrollTo({y: 0}); }}>\n          <Text>Scroll to top</Text>\n        </TouchableOpacity>\n      </View>")
     (def t29 "<Animated.View\n         {...this.state.panResponder.panHandlers}\n         style={this.state.pan.getLayout()}>\n         {this.props.children}\n       </Animated.View>")
-
+    (def t30 "<TextInput\n    style={{height: 40, borderColor: 'gray', borderWidth: 1}}\n    onChangeText={(text) => this.setState({text})}\n    value={this.state.text}\n  />")
 
     (def opts {:ns               "u"
                :dom-ns           "d"
                :kebab-tags       true
                :kebab-attrs      true
+               :camel-styles     true
                :remove-attr-vals false
-               :omit-empty-attrs true})))
+               :omit-empty-attrs true
+               :lib-ns           "lib"})))
 
 
 (comment
@@ -293,8 +312,9 @@
   (jsx->reagent t23 opts)
   (jsx->om t24 opts)
   (jsx->reagent t25 opts)
-  (jsx->reagent t26 opts)
+  (jsx->om t26 opts)
   (jsx->reagent t27 opts)
   (jsx->reagent t28 opts)
   (jsx->reagent t29 opts)
+  (jsx->om t30 opts)
   (jsx->ast t24))
