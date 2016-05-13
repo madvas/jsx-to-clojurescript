@@ -18,7 +18,7 @@ npm install -g jsx-to-clojurescript
 ```
 **As library:**
 ```
-[jsx-to-clojurescript "0.1.4"]
+[jsx-to-clojurescript "0.1.5"]
 ```
 **As [Alfred](https://www.alfredapp.com/) workflow (Mac only):**
 
@@ -336,6 +336,31 @@ jsx-to-clojurescript --kebab-attrs --kebab-tags "$(pbpaste)"
                                      (naming-is-hard-fun))
                                    (let [my-great-param 5]
                                      (some-other-function my-great-param)))))}))})
+```
+**No problem with regular JS** :wink:
+```javascript
+const myConst = {some: 34};
+
+function explode(size) {
+	var earth = "planet";
+	var foo = "bar";
+	return boom(earth) * size + myConst;
+}
+
+explode(42);
+
+```
+```bash
+jsx-to-clojurescript "$(pbpaste)"
+```
+```clojure
+(do
+  (def my-const {:some 34})
+  (defn explode [size]
+    (let [earth "planet"
+          foo "bar"]
+      (+ (* (boom earth) size) my-const)))
+  (explode 42))
 ```
 
 Alright folks, that's enough of examples, I guess you get the picture :wink:. If you saw error like

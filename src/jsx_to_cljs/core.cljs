@@ -32,8 +32,6 @@
                 (seq attrs)) (concat [(replace-set-state-calls attrs (symbol lib-ns 'set-state!))])
             true (concat children))))
 
-
-
 (defrecord Reagent []
   TargetLibrary
   (element [_ tag attrs children dom-tag? _ {:keys [omit-empty-attrs kebab-attrs lib-ns]}]
@@ -56,7 +54,6 @@
   [type _ _ _]
   (println "ERROR: Don't know how to handle node type " type))
 
-(defmethod ast-node "Program" [_ node _ _] (:body node))
 (defmethod ast-node "ExpressionStatement" [_ node _ _] (:expression node))
 (defmethod ast-node "JSXIdentifier" [_ node _ _] (:name node))
 (defmethod ast-node "Identifier" [_ node _ _] (-> node :name u/strip-init-underscore cs/->kebab-case-symbol))
@@ -69,10 +66,10 @@
 (defmethod ast-node "ArrayExpression" [_ node _ _] (:elements node))
 (defmethod ast-node "Property" [_ node _ _] {(-> node :key cs/->kebab-case-keyword) (:value node)})
 (defmethod ast-node "ReturnStatement" [_ node _ _] (:argument node))
+(defmethod ast-node "ForStatement" [_ node _ _] (:body node))
 (defmethod ast-node "JSXSpreadAttribute" [_ node _ _] (:argument node))
 (defmethod ast-node "JSXEmptyExpression" [_ _ _ _] nil)
 (defmethod ast-node "Literal" [_ node _ _] (:value node))
-
 
 (defn ^:private create-let-form [declarations]
   (with-meta `(~'let ~(into [] (apply concat declarations)))
@@ -104,13 +101,19 @@
 (defn ^:private create-fn-form [_ {:keys [params body]} _ _]
   (concat `(~'fn ~params) (remove-do body)))
 
-(defmethod ast-node "BlockStatement" [_ {:keys [body]} _ _]
+(defn ^:private create-do-form [_ {:keys [body]} _ _]
   (let [body (merge-let-forms body)
         first-exp (first body)]
     (if (u/let-form? first-exp)
       (concat first-exp (rest body))
       (with-meta (concat `(~'do) body)
                  {:type :do-form}))))
+
+(defmethod ast-node "BlockStatement" [& args]
+  (apply create-do-form args))
+
+(defmethod ast-node "Program" [& args]
+  (remove-excess-do (apply create-do-form args)))
 
 (defmethod ast-node "JSXAttribute" [_ {:keys [name value]} _ _]
   (let [value (if (and (= name "style")
@@ -172,11 +175,20 @@
 (defmethod ast-node "AssignmentExpression" [_ {:keys [operator left right]} _ _]
   `(~(u/operator->symbol operator) ~left ~right))
 
-(defmethod ast-node "VariableDeclaration" [_ {:keys [declarations]} _ _]
-  (create-let-form declarations))
+(defmethod ast-node "UpdateExpression" [_ {:keys [operator argument]} _ _]
+  `(~(u/operator->symbol operator) ~argument))
+
+(defmethod ast-node "VariableDeclaration" [_ {:keys [declarations kind] :as node} _ _]
+  (if (= kind "const")
+    (remove-excess-do
+      (create-do-form nil {:body (map #(list 'def (first %) (second %)) declarations)} nil nil))
+    (create-let-form declarations)))
 
 (defmethod ast-node "VariableDeclarator" [_ {:keys [id init]} _ _]
   `[~id ~init])
+
+(defmethod ast-node "FunctionDeclaration" [_ {:keys [id body params]} _ _]
+  (concat `(~'defn ~id ~params) (remove-do body)))
 
 (defn ^:private camelize-styles [attrs]
   (let [styles (:style attrs)]
@@ -206,7 +218,6 @@
         children (remove s/blank? (:children node))]
     (element target tag attrs children dom-tag? node opts)))
 
-
 (defn jsx->ast [jsx-str]
   (-> (.parse acorn jsx-str
               (clj->js {"plugins"
@@ -218,13 +229,13 @@
   ([target jsx-str] (jsx->target target jsx-str {}))
   ([target jsx-str opts] (jsx->target target jsx-str opts ast-node))
   ([target jsx-str opts handle-ast-node]
-   (first
-     (w/postwalk (fn [x]
-                   (if (get x :type)
-                     #_(do (println (:type x))
-                           (pf/print-and-return (handle-ast-node (:type x) x target opts)))
-                     (handle-ast-node (:type x) x target opts)
-                     x)) (jsx->ast jsx-str)))))
+   (println "jsx->target")
+   (w/postwalk (fn [x]
+                 (if (get x :type)
+                   #_(do (println (:type x))
+                         (pf/print-and-return (handle-ast-node (:type x) x target opts)))
+                   (handle-ast-node (:type x) x target opts)
+                   x)) (jsx->ast jsx-str))))
 
 
 (def jsx->om (partial jsx->target (Om.)))
@@ -277,8 +288,10 @@
   (jsx->reagent t28 opts)
   (jsx->reagent t29 opts)
   (jsx->om t30 opts)
-  (jsx->ast t24))
-
+  (jsx->om t31 opts)
+  (jsx->om t32 opts)
+  (jsx->om t33 opts)
+  (jsx->ast t33))
 
 (comment
   (do
@@ -312,7 +325,9 @@
     (def t28 "<View>\n        <ScrollView\n          ref={(scrollView) => { _scrollView = scrollView; }}\n          automaticallyAdjustContentInsets={false}\n          onScroll={() => { console.log('onScroll!'); }}\n          scrollEventThrottle={200}\n          style={styles.scrollView}>\n          {THUMBS.map(createThumbRow)}\n        </ScrollView>\n        <TouchableOpacity\n          style={styles.button}\n          onPress={() => { _scrollView.scrollTo({y: 0}); }}>\n          <Text>Scroll to top</Text>\n        </TouchableOpacity>\n      </View>")
     (def t29 "<Animated.View\n         {...this.state.panResponder.panHandlers}\n         style={this.state.pan.getLayout()}>\n         {this.props.children}\n       </Animated.View>")
     (def t30 "<TextInput\n    style={[styles, {height: 40, borderColor: 'gray', borderWidth: 1}, {borderColor: 'blue'}]}\n    onChangeText={(text) => this.setState({text})}\n    value={this.state.text}\n  />")
-
+    (def t31 "function _onPress(someParam, someOther) {\n    // Animate the update\n var a = 1;\n    LayoutAnimation.spring();\n    this.setState({w: this.state.w + 15, h: this.state.h + 15})\n  }")
+    (def t32 "var leftStyle = this.state.index === 0 ? {flex: 1} : {width: 20};\n    var middleStyle = this.state.index === 2 ? {width: 20} : {flex: 1};")
+    (def t33 "const myConst = {some: 34};\n\nfunction explode(size) {\n\tvar earth = \"planet\";\n\tvar foo = \"bar\";\n\treturn boom(earth) * size + myConst;\n}\n\nexplode(42);")
     (def opts {:ns               "u"
                :dom-ns           "d"
                :kebab-tags       true
@@ -321,3 +336,5 @@
                :remove-attr-vals false
                :omit-empty-attrs true
                :lib-ns           "lib"})))
+
+

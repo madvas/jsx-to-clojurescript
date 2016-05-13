@@ -63,6 +63,8 @@
             "===" "="
             "!" "not"
             "=" "set!"
+            "++" "inc"
+            "--" "dec"
             js-operator)))
 
 (defn non-empty-str? [str]
