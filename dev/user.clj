@@ -1,5 +1,8 @@
-(do
-  (require '[figwheel-sidecar.repl-api :as ra])
+(ns user
+  (:require [figwheel-sidecar.repl-api :as ra]))
+
+
+(defn start-fig []
   (ra/start-figwheel!
     {:figwheel-options {:server-port 5621}
      :build-ids        ["dev"]
@@ -16,5 +19,7 @@
                                         :verbose        false}}]})
   (ra/cljs-repl))
 
-(comment
+(defn stop-fig []
   (ra/stop-figwheel!))
+
+(start-fig)
