@@ -229,7 +229,6 @@
   ([target jsx-str] (jsx->target target jsx-str {}))
   ([target jsx-str opts] (jsx->target target jsx-str opts ast-node))
   ([target jsx-str opts handle-ast-node]
-   (println "jsx->target")
    (w/postwalk (fn [x]
                  (if (get x :type)
                    #_(do (println (:type x))
