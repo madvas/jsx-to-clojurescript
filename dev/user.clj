@@ -22,4 +22,5 @@
 (defn stop-fig []
   (ra/stop-figwheel!))
 
-(start-fig)
+(comment
+  (start-fig))

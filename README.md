@@ -18,7 +18,7 @@ npm install -g jsx-to-clojurescript
 ```
 **As library:**
 ```
-[jsx-to-clojurescript "0.1.6"]
+[jsx-to-clojurescript "0.1.7"]
 ```
 **As [Alfred](https://www.alfredapp.com/) workflow (Mac only):**
 
