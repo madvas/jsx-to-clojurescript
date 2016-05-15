@@ -1,4 +1,4 @@
-(defproject jsx-to-clojurescript "0.1.7"
+(defproject jsx-to-clojurescript "0.1.8"
   :description "Command and library to convert JSX snippets to Om/Reagent or other Clojurescript-style format."
   :url "https://github.com/madvas/jsx-to-clojurescript"
   :dependencies [[org.clojure/clojure "1.8.0"]

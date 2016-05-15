@@ -4,7 +4,7 @@
 **Search no more!**
 
 
-This is command utility and library to **convert JSX snippets to Om/Reagent Clojurescript-style format.**
+This is command utility and library to **convert JSX snippets to Om/Reagent/Rum Clojurescript-style format.**
 Note, this is by no means to be perfect JS->Cljs compiler, output will often still need touch of your loving
 hand, but, hey, most of dirty work will be done :sunglasses:
 
@@ -18,7 +18,7 @@ npm install -g jsx-to-clojurescript
 ```
 **As library:**
 ```
-[jsx-to-clojurescript "0.1.7"]
+[jsx-to-clojurescript "0.1.8"]
 ```
 **As [Alfred](https://www.alfredapp.com/) workflow (Mac only):**
 
@@ -50,15 +50,17 @@ jsx-to-clojurescript -h
 
     -h, --help            output usage information
     -V, --version         output the version number
-    -t --target [target]  Target library (om/reagent). Default om
+    -t --target [target]  Target library (om/reagent/rum). Default om
     --ns [string]         Namespace for compoments. Default ui
     --dom-ns [ns]         Namespace for DOM compoments. Default dom
-    --lib-ns [ns]         Target library ns. Default for Om: 'om'. Default for reagent: 'r'
+    --lib-ns [ns]         Target library ns. Default for Om: 'om'. Default for reagent & rum: 'r'
     --kebab-tags          Convert tags to kebab-case?
     --kebab-attrs         Convert attributes to kebab-case?
     --camel-styles        Keep style keys as camelCase
     --remove-attr-vals    Remove attribute values?
     --omit-empty-attrs    Omit empty attributes?
+    --styles-as-vector    Keep multiple styles as vector instead of merge
+
 
 ```
 

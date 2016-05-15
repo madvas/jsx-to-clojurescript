@@ -13,13 +13,27 @@
     [(dissoc attrs attr-name) (str tag-suffix s)]
     [attrs tag-suffix]))
 
-(defn ^:private replace-set-state-calls [attrs new-call]
+(defn ^:private replace-set-state-calls [attrs new-call-ns new-call]
   (w/postwalk (fn [x]
                 (if (and (seq? x)
                          (symbol? (first x))
                          (= (-> (first x) name cs/->kebab-case) "set-state"))
-                  (concat `(~new-call ~'this) (rest x))
+                  (concat `(~(symbol new-call-ns new-call) ~'this) (rest x))
                   x)) attrs))
+
+(defn ^:private reagentize-el [tag attrs children dom-tag? {:keys [omit-empty-attrs kebab-attrs lib-ns]}]
+  (let [id (get attrs :id)
+        class-attr-name (if kebab-attrs :class-name :className)
+        class-name (get attrs class-attr-name)
+        [attrs tag-suffix] (-> [attrs ""]
+                               (move-attr->tag-suffix :id (str "#" id))
+                               (move-attr->tag-suffix class-attr-name (u/join-classes class-name)))
+        tag (if dom-tag? (-> tag name (str tag-suffix) keyword)
+                         tag)]
+    (cond-> [tag]
+            (or (not omit-empty-attrs)
+                (seq attrs)) (conj (replace-set-state-calls attrs lib-ns 'set-state))
+            true (concat children))))
 
 (defprotocol TargetLibrary
   (element [this tag attrs children dom-tag? node opts]))
@@ -29,24 +43,19 @@
   (element [_ tag attrs children _ _ {:keys [omit-empty-attrs lib-ns]}]
     (cond-> `(~tag)
             (or (not omit-empty-attrs)
-                (seq attrs)) (concat [(replace-set-state-calls attrs (symbol lib-ns 'set-state!))])
+                (seq attrs)) (concat [(replace-set-state-calls attrs lib-ns 'set-state!)])
             true (concat children))))
 
 (defrecord Reagent []
   TargetLibrary
-  (element [_ tag attrs children dom-tag? _ {:keys [omit-empty-attrs kebab-attrs lib-ns]}]
-    (let [id (get attrs :id)
-          class-attr-name (if kebab-attrs :class-name :className)
-          class-name (get attrs class-attr-name)
-          [attrs tag-suffix] (-> [attrs ""]
-                                 (move-attr->tag-suffix :id (str "#" id))
-                                 (move-attr->tag-suffix class-attr-name (u/join-classes class-name)))
-          tag (if dom-tag? (-> tag name (str tag-suffix) keyword)
-                           tag)]
-      (into [] (cond-> [tag]
-                       (or (not omit-empty-attrs)
-                           (seq attrs)) (conj (replace-set-state-calls attrs (symbol lib-ns 'set-state)))
-                       true (concat children))))))
+  (element [_ tag attrs children dom-tag? _ opts]
+    (into [] (reagentize-el tag attrs children dom-tag? opts))))
+
+(defrecord Rum []
+  TargetLibrary
+  (element [_ tag attrs children dom-tag? _ opts]
+    (let [f (if dom-tag? vec identity)]
+      (f (reagentize-el tag attrs children dom-tag? opts)))))
 
 (defmulti ast-node (fn [type node target opts] type))
 
@@ -115,11 +124,14 @@
 (defmethod ast-node "Program" [& args]
   (remove-excess-do (apply create-do-form args)))
 
-(defmethod ast-node "JSXAttribute" [_ {:keys [name value]} _ _]
+(defmethod ast-node "JSXAttribute" [_ {:keys [name value]} _ {:keys [styles-as-vector]}]
   (let [value (if (and (= name "style")
                        (vector? value))
-                (with-meta (concat '(merge) value)
-                           {:type :styles-merge})
+                (with-meta
+                  (if-not styles-as-vector
+                    (concat '(merge) value)
+                    value)
+                  {:type :styles-merge})
                 value)]
     {(keyword name) value}))
 
@@ -239,33 +251,29 @@
 
 (def jsx->om (partial jsx->target (Om.)))
 (def jsx->reagent (partial jsx->target (Reagent.)))
+(def jsx->rum (partial jsx->target (Rum.)))
 
 (defmulti transform-jsx (fn [target-str & _] target-str))
-
-(defmethod transform-jsx "om"
-  [_ & args]
-  (apply jsx->om args))
-
-(defmethod transform-jsx "reagent"
-  [_ & args]
-  (apply jsx->reagent args))
+(defmethod transform-jsx "om" [_ & args] (apply jsx->om args))
+(defmethod transform-jsx "reagent" [_ & args] (apply jsx->reagent args))
+(defmethod transform-jsx "rum" [_ & args] (apply jsx->rum args))
 
 
 ; Don't have tests yet, this is temporary to try out in REPL
 (comment
   (jsx->om t0)
   (jsx->reagent t1 opts)
-  (jsx->om t2 opts)
-  (jsx->reagent t2 opts)
+  (jsx->rum t2 opts)
+  (jsx->rum t3 opts)
   (jsx->om t3 opts)
   (jsx->reagent t3 opts)
   (jsx->om t4 opts)
   (jsx->reagent t4 opts)
   (jsx->reagent t5 opts)
   (jsx->om t5 opts)
-  (jsx->om t6 opts)
+  (jsx->rum t6 opts)
   (jsx->om t8 opts)
-  (jsx->om t9 opts)
+  (jsx->rum t9 opts)
   (jsx->om t10 opts)
   (jsx->reagent t11 opts)
   (jsx->om t12 opts)
@@ -274,22 +282,22 @@
   (jsx->reagent t15 opts)
   (jsx->om t16 opts)
   (jsx->reagent t17 opts)
-  (jsx->reagent t18 opts)
+  (jsx->rum t18 opts)
   (jsx->reagent t19 opts)
-  (jsx->reagent t20 opts)
+  (jsx->rum t20 opts)
   (jsx->reagent t21 opts)
-  (jsx->reagent t22 opts)
+  (jsx->rum t22 opts)
   (jsx->reagent t23 opts)
   (jsx->om t24 opts)
   (jsx->reagent t25 opts)
   (jsx->om t26 opts)
   (jsx->reagent t27 opts)
-  (jsx->reagent t28 opts)
+  (jsx->rum t28 opts)
   (jsx->reagent t29 opts)
   (jsx->om t30 opts)
-  (jsx->om t31 opts)
+  (jsx->rum t31 opts)
   (jsx->om t32 opts)
-  (jsx->om t33 opts)
+  (jsx->rum t33 opts)
   (jsx->ast t33))
 
 (comment
@@ -327,6 +335,7 @@
     (def t31 "function _onPress(someParam, someOther) {\n    // Animate the update\n var a = 1;\n    LayoutAnimation.spring();\n    this.setState({w: this.state.w + 15, h: this.state.h + 15})\n  }")
     (def t32 "var leftStyle = this.state.index === 0 ? {flex: 1} : {width: 20};\n    var middleStyle = this.state.index === 2 ? {width: 20} : {flex: 1};")
     (def t33 "const myConst = {some: 34};\n\nfunction explode(size) {\n\tvar earth = \"planet\";\n\tvar foo = \"bar\";\n\treturn boom(earth) * size + myConst;\n}\n\nexplode(42);")
+    (def t34 "function isDropZone(gesture){     //Step 2\n                    var dz = this.state.dropZoneValues;\n                    return gesture.moveY > dz.y && gesture.moveY < dz.y + dz.height;\n                    }")
     (def opts {:ns               "u"
                :dom-ns           "d"
                :kebab-tags       true
@@ -334,6 +343,7 @@
                :camel-styles     true
                :remove-attr-vals false
                :omit-empty-attrs true
-               :lib-ns           "lib"})))
+               :lib-ns           "lib"
+               :styles-as-vector true})))
 
 

@@ -15,15 +15,16 @@
     (version "0.1.0")
     (description "Converts JSX string into selected Clojurescript React library format")
     (usage "[options] <string>")
-    (option "-t --target [target]" "Target library (om/reagent). Default om" #"(om|reagent)$" "om")
+    (option "-t --target [target]" "Target library (om/reagent/rum). Default om" #"(om|reagent|rum)$" "om")
     (option "--ns [string]" "Namespace for compoments. Default ui" "ui")
     (option "--dom-ns [ns]" "Namespace for DOM compoments. Default dom" "dom")
-    (option "--lib-ns [ns]" "Target library ns. Default for Om: 'om'. Default for reagent: 'r'")
+    (option "--lib-ns [ns]" "Target library ns. Default for Om: 'om'. Default for reagent & rum: 'r'")
     (option "--kebab-tags" "Convert tags to kebab-case?")
     (option "--kebab-attrs" "Convert attributes to kebab-case?")
     (option "--camel-styles" "Keep style keys as camelCase")
     (option "--remove-attr-vals" "Remove attribute values?")
     (option "--omit-empty-attrs" "Omit empty attributes?")
+    (option "--styles-as-vector" "Keep multiple styles as vector instead of merge")
     (parse argv))
 
 (defn default-lib-ns [opts]
@@ -32,6 +33,7 @@
                            (condp = (:target opts)
                              "om" "om"
                              "reagent" "r"
+                             "rum" "r"
                              nil)
                            (if (s/blank? lib-ns) nil lib-ns)))))
 
